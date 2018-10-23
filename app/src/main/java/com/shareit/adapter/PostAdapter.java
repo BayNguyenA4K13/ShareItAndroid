@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -23,11 +24,16 @@ public class PostAdapter extends RecyclerView.Adapter{
     AdapterListenner listenner;
     public static final int TYPE_ITEM_POST=0;
     public static final int TYPE_ITEM_LOAD_MORE=1;
-
+    IOnItemClickToTitle onItemClickToTitle;
     public PostAdapter(List<PostEntity> postEntities, AdapterListenner listenner){
         this.postEntities = postEntities;
         this.listenner = listenner;
     }
+
+    public void setOnItemClickToTitle(IOnItemClickToTitle onItemClickToTitle) {
+        this.onItemClickToTitle = onItemClickToTitle;
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -49,6 +55,15 @@ public class PostAdapter extends RecyclerView.Adapter{
             postViewHolder.tvPostTitle.setText(postEntity.getTitle());
             postViewHolder.tvPostDesc.setText(postEntity.getDesc());
             Glide.with(postViewHolder.imgPost.getContext()).load(postEntity.getThumb()).into(postViewHolder.imgPost);
+
+            postViewHolder.lineTitle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onItemClickToTitle.IOnItem(position,view);
+                }
+            });
+
+
             postViewHolder.rlItemPost.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -71,6 +86,8 @@ public class PostAdapter extends RecyclerView.Adapter{
 
     }
 
+
+
     @Override
     public int getItemViewType(int position) {
         if(position < postEntities.size()) {
@@ -89,12 +106,20 @@ public class PostAdapter extends RecyclerView.Adapter{
         TextView tvPostTitle;
         TextView tvPostDesc;
         RelativeLayout rlItemPost;
+        LinearLayout lineTitle;
         public PostViewHolder(View itemView) {
             super(itemView);
             imgPost =(ImageView) itemView.findViewById(R.id.img_post);
             tvPostTitle =(TextView) itemView.findViewById(R.id.tv_post_title);
             tvPostDesc =(TextView) itemView.findViewById(R.id.tv_post_desc);
             rlItemPost =(RelativeLayout) itemView.findViewById(R.id.rl_item_post);
+            lineTitle =(LinearLayout) itemView.findViewById(R.id.lineTitle);
+            lineTitle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onItemClickToTitle.IOnItem(getAdapterPosition(),view);
+                }
+            });
         }
     }
 
@@ -104,5 +129,9 @@ public class PostAdapter extends RecyclerView.Adapter{
             super(itemView);
             btnLoadMore = itemView.findViewById(R.id.btn_load_more);
         }
+    }
+
+    public interface IOnItemClickToTitle{
+        void IOnItem(int position,View view);
     }
 }

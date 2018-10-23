@@ -45,6 +45,7 @@
                 android:layout_centerVertical="true"
                 android:textOn="Sound On"
                 android:textOff="Sound off"
+                android:onClick="onToggleClicked"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/_26sdp" />
 

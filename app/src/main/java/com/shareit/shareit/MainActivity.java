@@ -3,12 +3,14 @@ package com.shareit.shareit;
 import android.content.Context;
 import android.content.Intent;
 import android.media.Image;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -25,6 +27,7 @@ import com.shareit.entity.PostEntity;
 import com.shareit.interfaces.AdapterListenner;
 import com.shareit.interfaces.HttpCallback;
 import com.shareit.util.LogUtil;
+import com.shareit.util.TextSpeech;
 import com.shareit.util.ToastUtil;
 
 import org.json.JSONArray;
@@ -34,6 +37,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.Request;
 
@@ -50,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     TextView tvTitle;
     SwipeRefreshLayout swipeRefreshLayout;
     ToggleButton toggoBtnSound;
+    private TextToSpeech mTTs;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -165,6 +170,9 @@ public class MainActivity extends AppCompatActivity {
         rvMenu.setItemAnimator(new DefaultItemAnimator());
         rvMenu.setAdapter(menuAdapter);
 
+
+
+
         postAdapter = new PostAdapter(postEntities, new AdapterListenner() {
             @Override
             public void onItemClickListenner(Object o, int pos, RecyclerView.ViewHolder holder) {
@@ -176,6 +184,37 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     getListPost();
                 }
+            }
+        });
+
+        mTTs = new TextToSpeech(MainActivity.this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+//                    int result = mTTs.setLanguage(Locale.ENGLISH);
+                    int result = mTTs.setLanguage(new Locale("vi_VN"));
+
+                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Log.e("TTS", "Language not supported");
+                    }
+                } else {
+                    Log.e("TTS", "Initialization failed");
+                }
+            }
+        });
+
+        postAdapter.setOnItemClickToTitle(new PostAdapter.IOnItemClickToTitle() {
+            @Override
+            public void IOnItem(int position, View view) {
+                final PostEntity postEntity = postEntities.get(position);
+//                textSpeech.speak(postEntity.getTitle());
+
+                    mTTs.speak(postEntity.getTitle(), TextToSpeech.QUEUE_FLUSH, null);
+
+
+
+
+                Toast.makeText(context, ""+postEntity.getTitle(), Toast.LENGTH_SHORT).show();
             }
         });
 
